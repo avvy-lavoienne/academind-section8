@@ -2,8 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-
-import { storePost, updatePostLikeStatus } from '@/lib/posts';
+import { storePost, updatePostLikeStatus, deletePostFromDb } from '@/lib/posts'; // Tambahkan deletePostFromDb
 import { uploadImage } from '@/lib/cloudinary';
 
 export async function createPost(prevState, formData) {
@@ -53,4 +52,15 @@ export async function createPost(prevState, formData) {
 export async function togglePostLikeStatus(postId) {
   await updatePostLikeStatus(postId, 2);
   revalidatePath('/', 'layout');
+}
+
+export async function deletePost(postId) {
+  try {
+    await deletePostFromDb(postId); // Panggil fungsi untuk menghapus dari database
+    revalidatePath('/', 'layout'); // Revalidate halaman setelah penghapusan
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    return { success: false, error: 'Failed to delete post. Please try again.' };
+  }
 }
